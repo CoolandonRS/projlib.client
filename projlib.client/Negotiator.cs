@@ -1,14 +1,8 @@
 ﻿using System.ComponentModel;
-using System.Net.NetworkInformation;
-using System.Net.Security;
-using System.Net.Sockets;
-using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics.Arm;
-using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using netlib;
 
-namespace projupdate_client; 
+namespace CoolandonRS.projlib.client; 
 
 public static class Negotiator {
     /// <summary>

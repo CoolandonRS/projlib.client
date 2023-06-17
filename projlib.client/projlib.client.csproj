@@ -4,6 +4,11 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <RootNamespace>CoolandonRS.projlib.client</RootNamespace>
+        <PackageId>CoolandonRS.projlib.client</PackageId>
+        <Version>1.0.0-beta</Version>
+        <Title>Projlib.Client</Title>
+        <Authors>CoolandonRS</Authors>
     </PropertyGroup>
 
     <ItemGroup>

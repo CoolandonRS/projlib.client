@@ -1,9 +1,8 @@
 ﻿using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Runtime.CompilerServices;
 using netlib;
 
-namespace projupdate_client; 
+namespace CoolandonRS.projlib.client; 
 
 public class ServerConnection {
     public static readonly SemVer UpdaterVer = new SemVer(1, 0, 0);

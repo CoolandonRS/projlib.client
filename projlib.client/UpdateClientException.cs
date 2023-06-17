@@ -1,4 +1,4 @@
-﻿namespace projupdate_client; 
+﻿namespace CoolandonRS.projlib.client; 
 
 public class UpdateClientException : InvalidOperationException {
     public UpdateClientException(string msg) : base(msg) {}
