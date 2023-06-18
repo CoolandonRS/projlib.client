@@ -56,14 +56,10 @@ public static class Negotiator {
                 if (serverSum != clientSum) throw new ServerOperationException("sha256sums do not match");
                 return new NegotiationResult(bin);
             case Mode.Console:
-                if (!connection.IsDevMode()) throw new InvalidOperationException("Non dev mode console connection attempted");
+                if (!connection.IsDevMode()) log?.Invoke("WARN: Opened console in project mode. Did you mean to do this?");
                 var cmd = "";
                 while (cmd != "disconnect") {
                     cmd = Console.ReadLine()!;
-                    if (new[] { "sha256sum", "len", "truelen", "binary" }.Contains(cmd)) {
-                        log?.Invoke("NAK: Unsupported in dev mode");
-                        continue;
-                    }
                     Console.WriteLine(communicator.ReadStr());
                 }
                 return new NegotiationResult(true);

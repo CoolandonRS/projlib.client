@@ -5,7 +5,7 @@ using netlib;
 namespace CoolandonRS.projlib.client; 
 
 public class ServerConnection {
-    public static readonly SemVer UpdaterVer = new SemVer(1, 0, 0);
+    public static readonly SemVer UpdaterVer = new(1, 0, 0);
     private static readonly string[] KnownUpdaters = { "eidolon", "updater.numra.net", "elfib" };
     private readonly TcpClient client;
     private TcpRsaCommunicator communicator;
@@ -64,8 +64,8 @@ public class ServerConnection {
         active = true;
     }
 
-    public void InitDev(string clientName, string clientPem, string projName) {
-        Init(clientName, clientPem, projName, "dev");
+    public void InitDev(string clientName, string clientPem) {
+        Init(clientName, clientPem, "dev", "dev");
         devMode = true;
     }
 
@@ -130,10 +130,16 @@ public class ServerConnection {
         }
     }
 
+    /// <summary>
+    /// Don't forget to Init()
+    /// </summary>
     public ServerConnection() : this(FindServer()) {
         
     }
 
+    /// <summary>
+    /// Don't forget to Init()
+    /// </summary>
     public ServerConnection(TcpClient client) {
         this.client = client;
         this.active = false;
