@@ -1,19 +1,21 @@
 ﻿using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using netlib;
+using CoolandonRS.netlib;
+using CoolandonRS.netlib.Encrypted;
+using CoolandonRS.projlib.client.generics;
 
 namespace CoolandonRS.projlib.client; 
 
 public class ServerConnection {
     public static readonly SemVer UpdaterVer = new(1, 0, 0);
-    private static readonly string[] KnownUpdaters = { "eidolon", "updater.numra.net", "elfib" };
+    private static readonly string[] KnownUpdaters = { "eidolon", "updater.numra.net", "imperium" };
     private readonly TcpClient client;
-    private TcpRsaCommunicator communicator;
+    private AESTcpCommunicator communicator;
     private const int UpdaterPort = 1248;
     private const string ServerPem = "";
     private bool active;
     private bool devMode = false;
-    private object threadSafety = new();
+    private object @lock = new();
 
 
     /// <summary>
@@ -70,23 +72,19 @@ public class ServerConnection {
     }
 
     private void GenericLogin(string clientName, string clientPem) {
-        lock (threadSafety) { // there are other important parts to thread safe but this is most important and I'm too lazy to find all the parts.
-            AssertActive();
-            AssertConnectionOpen();
-            this.communicator = new TcpRsaCommunicator(client, clientPem, ServerPem);
-            // login
-            communicator.WriteStr(clientName);
-            communicator.WriteStr(communicator.ReadStr());
-            if (!NetUtil.IsAck(communicator.ReadStr())) {
-                Dispose();
-                throw new ServerAuthException("Authentication failed");
-            }
+        lock (@lock) { // there are other important parts to thread safe but this is most important and I'm too lazy to find all the parts.
+            try {
+                AssertActive();
+                AssertConnectionOpen();
+                var comm = EncryptedUtil.AuthToAESClient(new RSATcpCommunicator(client, clientPem, ServerPem), clientName);
+                if (comm == null) throw new ServerAuthException("Authentication Failed");
 
-            // ver
-            communicator.WriteStr(UpdaterVer.ToString());
-            if (!NetUtil.IsAck(communicator.ReadStr())) {
+                // ver
+                communicator.WriteStr(UpdaterVer.ToString());
+                if (!NetUtil.IsAck(communicator.ReadStr())) throw new ServerAuthException("Authentication failed");
+            } catch {
                 Dispose();
-                throw new ServerAuthException("Authentication failed");
+                throw;
             }
         }
     }
@@ -104,7 +102,7 @@ public class ServerConnection {
     }
 
     public bool IsDevMode() {
-        if (!active) throw new InvalidOperationException("Not active");
+        AssertActive();
         return devMode;
     }
 
@@ -112,7 +110,7 @@ public class ServerConnection {
     /// If you close this TcpCommunicator, bad things will happen. Please don't :)
     /// </summary>
     /// <returns></returns>
-    public TcpRsaCommunicator GetCommunicator() {
+    public AESTcpCommunicator GetCommunicator() {
         AssertActive();
         AssertConnectionOpen();
         return communicator;
@@ -122,8 +120,7 @@ public class ServerConnection {
         try {
             communicator.Close();
             client.Close();
-        }
-        catch {
+        } catch {
             // no-op
         } finally {
             active = false;
